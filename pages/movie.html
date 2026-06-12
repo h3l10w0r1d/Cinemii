@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CINEMII Movie</title>
+
+<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+
+<body>
+
+<div id="moviePage"></div>
+
+<script type="module">
+import {
+    API_KEY,
+    BASE_URL,
+    IMG,
+    BACKDROP
+} from "../assets/js/core/api.js";
+
+const page =
+document.getElementById("moviePage");
+
+const savedMovie =
+JSON.parse(
+    localStorage.getItem("cinemii_selected_movie")
+);
+
+if (!savedMovie || !savedMovie.id) {
+    location.href = "../index.html";
+}
+
+const mediaType =
+savedMovie.media_type || "movie";
+
+async function loadMovie() {
+    try {
+        const response = await fetch(
+            `${BASE_URL}/${mediaType}/${savedMovie.id}?api_key=${API_KEY}&append_to_response=videos,credits,recommendations`
+        );
+
+        const movie =
+            await response.json();
+
+        renderMovie(movie);
+
+    } catch (error) {
+        page.innerHTML = `
+            <section class="open-movie">
+                <button class="open-back" onclick="location.href='../index.html'">
+                    ← Back
+                </button>
+
+                <div class="open-content">
+                    <div class="open-left">
+                        <h1 class="open-title">
+                            Movie failed to load
+                        </h1>
+
+                        <p class="open-desc">
+                            Please go back and try again.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        `;
+    }
+}
+
+function renderMovie(movie) {
+    const title =
+        movie.title || movie.name || "CINEMII";
+
+    const trailer =
+        movie.videos?.results?.find(video =>
+            video.site === "YouTube" &&
+            video.type === "Trailer"
+        );
+
+    const director =
+        movie.credits?.crew?.find(person =>
+            person.job === "Director"
+        );
+
+    page.innerHTML = `
+        <section class="open-movie">
+
+            <div
+                class="open-bg"
+                style="background-image:url('${BACKDROP}${movie.backdrop_path || savedMovie.backdrop_path}')"
+            ></div>
+
+            <div class="open-gradient"></div>
+
+            <button class="open-back" id="backBtn">
+                ← Back
+            </button>
+
+            <div class="open-content">
+
+                <div class="open-left">
+
+                    <div class="open-tag">
+                        CINEMII EXPERIENCE
+                    </div>
+
+                    <h1 class="open-title">
+                        ${title}
+                    </h1>
+
+                    <div class="open-meta">
+                        <span>⭐ ${movie.vote_average?.toFixed(1) || "N/A"}</span>
+                        <span>${movie.runtime || movie.number_of_seasons || "N/A"} min</span>
+                        <span>${movie.release_date?.slice(0,4) || movie.first_air_date?.slice(0,4) || "N/A"}</span>
+                    </div>
+
+                    <p class="open-desc">
+                        ${movie.overview || "No description available."}
+                    </p>
+
+                    <div class="open-details">
+
+                        <div>
+                            <b>Director</b>
+                            <p>${director?.name || "Unknown"}</p>
+                        </div>
+
+                        <div>
+                            <b>Type</b>
+                            <p>${mediaType === "tv" ? "TV Series" : "Movie"}</p>
+                        </div>
+
+                    </div>
+
+                    <div class="open-buttons">
+
+                        <button class="open-btn primary" id="watchBtn">
+                            ▶ Watch
+                        </button>
+
+                        <button class="open-btn glass" id="trailerBtn">
+                            🎬 Trailer
+                        </button>
+
+                        <button class="open-btn glass" id="favBtn">
+                            ❤️ Favorite
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="open-poster-wrap">
+                    <img
+                        class="open-poster"
+                        src="${IMG}${movie.poster_path || savedMovie.poster_path}"
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="movie-extra">
+
+            <h2>Top Cast</h2>
+
+            <div class="cast-row">
+                ${(movie.credits?.cast || []).slice(0,8).map(actor => `
+                    <div class="cast-card">
+                        <img src="${
+                            actor.profile_path
+                                ? IMG + actor.profile_path
+                                : "https://placehold.co/300x450/111/fff?text=CINEMII"
+                        }">
+
+                        <h3>${actor.name}</h3>
+                        <p>${actor.character || ""}</p>
+                    </div>
+                `).join("")}
+            </div>
+
+            <h2>More Like This</h2>
+
+            <div class="similar-row">
+                ${(movie.recommendations?.results || []).slice(0,12).map(item => `
+                    <div class="similar-card" data-id="${item.id}">
+                        <img src="${IMG}${item.poster_path}">
+                        <p>${item.title || item.name}</p>
+                    </div>
+                `).join("")}
+            </div>
+
+        </section>
+    `;
+
+    document.getElementById("backBtn").onclick = () => {
+        location.href = "../index.html";
+    };
+
+    document.getElementById("watchBtn").onclick = () => {
+        if (trailer) {
+            openTrailer(trailer.key);
+        } else {
+            alert("Trailer not found");
+        }
+    };
+
+    document.getElementById("trailerBtn").onclick = () => {
+        if (trailer) {
+            openTrailer(trailer.key);
+        } else {
+            alert("Trailer not found");
+        }
+    };
+
+    document.getElementById("favBtn").onclick = () => {
+        let favorites =
+            JSON.parse(localStorage.getItem("favorites")) || [];
+
+        const exists =
+            favorites.find(item => item.id === movie.id);
+
+        if (exists) {
+            favorites =
+                favorites.filter(item => item.id !== movie.id);
+
+            document.getElementById("favBtn").textContent =
+                "❤️ Favorite";
+        } else {
+            favorites.push({
+                ...movie,
+                media_type: mediaType
+            });
+
+            document.getElementById("favBtn").textContent =
+                "✅ Added";
+        }
+
+        localStorage.setItem(
+            "favorites",
+            JSON.stringify(favorites)
+        );
+    };
+
+    document.querySelectorAll(".similar-card").forEach(card => {
+        card.onclick = () => {
+            localStorage.setItem(
+                "cinemii_selected_movie",
+                JSON.stringify({
+                    id: card.dataset.id,
+                    media_type: mediaType
+                })
+            );
+
+            location.reload();
+        };
+    });
+}
+
+function openTrailer(key) {
+    const modal =
+        document.createElement("div");
+
+    modal.className =
+        "cinema-trailer";
+
+    modal.innerHTML = `
+        <div class="trailer-box">
+            <button class="close-trailer">✕</button>
+
+            <iframe
+                src="https://www.youtube.com/embed/${key}?autoplay=1"
+                allow="autoplay"
+                allowfullscreen>
+            </iframe>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.body.style.overflow = "hidden";
+
+    modal.querySelector(".close-trailer").onclick = closeTrailer;
+
+    modal.onclick = event => {
+        if (event.target === modal) {
+            closeTrailer();
+        }
+    };
+
+    function closeTrailer() {
+        modal.remove();
+        document.body.style.overflow = "auto";
+    }
+}
+
+loadMovie();
+</script>
+
+</body>
+</html>

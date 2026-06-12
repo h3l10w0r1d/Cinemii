@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CINEMII Profile</title>
+
+<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+
+<body>
+
+<div class="profile-page">
+
+    <div class="profile-bg"></div>
+
+    <header class="profile-nav">
+        <div class="profile-logo" id="logoBtn">
+            CINEMII
+        </div>
+
+        <button class="profile-back" id="backBtn">
+            ← Home
+        </button>
+    </header>
+
+    <section class="profile-hero">
+
+        <div class="avatar-section">
+
+            <div class="avatar-ring">
+                <img
+                    id="avatarPreview"
+                    class="profile-avatar"
+                    src="https://placehold.co/300x300/111/fff?text=C"
+                    alt="Avatar"
+                >
+
+                <div class="online-dot"></div>
+            </div>
+
+            <input
+                type="file"
+                id="avatarInput"
+                accept="image/*"
+                hidden
+            >
+
+            <button class="upload-btn" id="uploadBtn">
+                Change Avatar
+            </button>
+
+        </div>
+
+        <div class="profile-info">
+
+            <div class="profile-top-line">
+                <div class="profile-tag">
+                    PREMIUM MEMBER
+                </div>
+            </div>
+
+            <input
+                id="usernameInput"
+                class="profile-name-input"
+                placeholder="Your username"
+            >
+
+            <input
+                id="emailInput"
+                class="profile-email-input"
+                placeholder="Your email"
+            >
+
+            <textarea
+                id="bioInput"
+                class="profile-bio"
+                placeholder="Tell something about yourself..."
+            ></textarea>
+
+            <div class="xp-card">
+                <div class="xp-top">
+                    <span>LEVEL 27</span>
+                    <span>8,920 XP</span>
+                </div>
+
+                <div class="xp-bar">
+                    <div class="xp-fill"></div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="profile-btn primary">
+                    Edit Profile
+                </button>
+
+                <button class="profile-btn glass">
+                    Add Friend
+                </button>
+
+                <button class="profile-btn glass">
+                    Join Room
+                </button>
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="profile-content">
+
+        <div class="profile-card">
+
+            <div class="card-top">
+                <h2>Favorite Movies</h2>
+                <span>Collection</span>
+            </div>
+
+            <div
+                class="favorites-grid"
+                id="favoritesGrid"
+            ></div>
+
+        </div>
+
+        <div class="profile-card continue-card">
+
+            <div class="card-top">
+                <h2>Continue Watching</h2>
+                <span>Resume</span>
+            </div>
+
+            <div
+                class="continue-grid"
+                id="continueGrid"
+            ></div>
+
+        </div>
+
+        <div class="profile-card dna-card">
+
+    <div class="card-top">
+        <h2>Movie DNA</h2>
+        <span>Your taste</span>
+    </div>
+
+    <div class="dna-grid">
+
+        <div class="dna-item">
+            <div class="dna-top">
+                <span>Sci-Fi</span>
+                <b>82%</b>
+            </div>
+            <div class="dna-bar">
+                <div style="width:82%"></div>
+            </div>
+        </div>
+
+        <div class="dna-item">
+            <div class="dna-top">
+                <span>Action</span>
+                <b>64%</b>
+            </div>
+            <div class="dna-bar">
+                <div style="width:64%"></div>
+            </div>
+        </div>
+
+        <div class="dna-item">
+            <div class="dna-top">
+                <span>Drama</span>
+                <b>48%</b>
+            </div>
+            <div class="dna-bar">
+                <div style="width:48%"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="profile-card stats-room-card">
+
+    <div class="card-top">
+        <h2>CINEMII Stats Room</h2>
+        <span>Analytics</span>
+    </div>
+
+    <div class="stats-room-grid">
+
+        <div class="stats-room-item">
+            <span>🎬</span>
+            <h3>24</h3>
+            <p>Watched</p>
+        </div>
+
+        <div class="stats-room-item">
+            <span>❤️</span>
+            <h3>8</h3>
+            <p>Favorites</p>
+        </div>
+
+        <div class="stats-room-item">
+            <span>⏱</span>
+            <h3>48h</h3>
+            <p>Total Hours</p>
+        </div>
+
+        <div class="stats-room-item wide">
+            <span>👑</span>
+            <h3>CINEMII Legend</h3>
+            <p>Cinematic Rank</p>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="profile-card activity-card">
+
+    <div class="card-top">
+        <h2>Friends Activity</h2>
+        <span>Live feed</span>
+    </div>
+
+    <div class="activity-list">
+
+        <div class="activity-item">
+            <div class="activity-avatar">M</div>
+            <div class="activity-info">
+                <h4>Michael <span>started watching</span></h4>
+                <p>Interstellar</p>
+            </div>
+            <div class="activity-time">2 min ago</div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-avatar">E</div>
+            <div class="activity-info">
+                <h4>Emma <span>added to favorites</span></h4>
+                <p>Dune</p>
+            </div>
+            <div class="activity-time">8 min ago</div>
+        </div>
+
+    </div>
+
+</div>
+
+        <div class="profile-card">
+
+            <div class="card-top">
+                <h2>Online Friends</h2>
+                <span>Demo</span>
+            </div>
+
+            <div class="friends-list">
+
+                <div class="friend-card">
+                    <div class="friend-avatar"></div>
+                    <div>
+                        <h4>Michael</h4>
+                        <p>Watching Interstellar</p>
+                    </div>
+                </div>
+
+                <div class="friend-card">
+                    <div class="friend-avatar"></div>
+                    <div>
+                        <h4>Emma</h4>
+                        <p>Online now</p>
+                    </div>
+                </div>
+
+                <div class="friend-card">
+                    <div class="friend-avatar"></div>
+                    <div>
+                        <h4>Daniel</h4>
+                        <p>In cinematic room</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script type="module">
+
+const avatarInput =
+document.getElementById("avatarInput");
+
+const avatarPreview =
+document.getElementById("avatarPreview");
+
+const uploadBtn =
+document.getElementById("uploadBtn");
+
+const usernameInput =
+document.getElementById("usernameInput");
+
+const emailInput =
+document.getElementById("emailInput");
+
+const bioInput =
+document.getElementById("bioInput");
+
+const favoritesGrid =
+document.getElementById("favoritesGrid");
+
+const continueGrid =
+document.getElementById("continueGrid");
+
+loadProfile();
+loadFavorites();
+loadContinueWatching();
+
+function loadProfile() {
+
+    usernameInput.value =
+        localStorage.getItem("cinemii_username")
+        || "CINEMII User";
+
+    emailInput.value =
+        localStorage.getItem("cinemii_email")
+        || "user@cinemii.com";
+
+    bioInput.value =
+        localStorage.getItem("cinemii_bio")
+        || "Movie lover. Cinematic universe explorer.";
+
+    const avatar =
+        localStorage.getItem("cinemii_avatar");
+
+    if (avatar) {
+        avatarPreview.src = avatar;
+    }
+}
+
+function saveProfile() {
+
+    localStorage.setItem(
+        "cinemii_username",
+        usernameInput.value
+    );
+
+    localStorage.setItem(
+        "cinemii_email",
+        emailInput.value
+    );
+
+    localStorage.setItem(
+        "cinemii_bio",
+        bioInput.value
+    );
+}
+
+usernameInput.addEventListener("input", saveProfile);
+emailInput.addEventListener("input", saveProfile);
+bioInput.addEventListener("input", saveProfile);
+
+uploadBtn.addEventListener("click", () => {
+    avatarInput.click();
+});
+
+avatarInput.addEventListener("change", event => {
+
+    const file =
+        event.target.files[0];
+
+    if (!file) return;
+
+    const reader =
+        new FileReader();
+
+    reader.onload = () => {
+
+        avatarPreview.src =
+            reader.result;
+
+        localStorage.setItem(
+            "cinemii_avatar",
+            reader.result
+        );
+    };
+
+    reader.readAsDataURL(file);
+});
+
+function loadFavorites() {
+
+    const favorites =
+        JSON.parse(localStorage.getItem("favorites")) || [];
+
+    if (!favorites.length) {
+        favoritesGrid.innerHTML =
+            `<p class="empty-text">No favorite movies yet.</p>`;
+        return;
+    }
+
+    favoritesGrid.innerHTML =
+        favorites.slice(0, 6).map(movie => `
+            <div class="favorite-card">
+                <img
+                    src="https://image.tmdb.org/t/p/w500${movie.poster_path}"
+                    alt="${movie.title || movie.name}"
+                >
+
+                <div class="favorite-overlay">
+                    <p>${movie.title || movie.name}</p>
+                </div>
+            </div>
+        `).join("");
+}
+
+function loadContinueWatching() {
+
+    const list =
+        JSON.parse(localStorage.getItem("cinemii_continue_watching")) || [];
+
+    if (!list.length) {
+        continueGrid.innerHTML =
+            `<p class="empty-text">No continue watching yet.</p>`;
+        return;
+    }
+
+    continueGrid.innerHTML =
+        list.slice(0, 6).map(movie => `
+            <div class="continue-item">
+                <img
+                    src="https://image.tmdb.org/t/p/w500${movie.poster_path}"
+                    alt="${movie.title || movie.name}"
+                >
+
+                <div class="continue-info">
+                    <h4>${movie.title || movie.name}</h4>
+
+                    <div class="continue-bar">
+                        <div style="width:${movie.progress || 63}%"></div>
+                    </div>
+
+                    <p>${movie.progress || 63}% watched</p>
+                </div>
+            </div>
+        `).join("");
+}
+
+document.getElementById("backBtn")
+.addEventListener("click", () => {
+    location.href = "../index.html";
+});
+
+document.getElementById("logoBtn")
+.addEventListener("click", () => {
+    location.href = "../index.html";
+});
+
+</script>
+
+</body>
+</html>

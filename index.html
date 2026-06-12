@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+<title>CINEMII</title>
+
+<link
+rel="stylesheet"
+href="./assets/css/main.css"
+/>
+
+</head>
+
+<div class="auth-modal" id="authModal">
+
+    <div class="auth-card">
+
+        <button class="auth-close" id="authClose">
+            ✕
+        </button>
+
+        <div class="auth-brand">
+            CINEMII
+        </div>
+
+        <h2 id="authTitle">
+            Sign In
+        </h2>
+
+        <p class="auth-subtitle">
+            Enter your cinematic world.
+        </p>
+
+        <div class="auth-tabs">
+
+            <button class="auth-tab active" id="signInTab">
+                Sign In
+            </button>
+
+            <button class="auth-tab" id="signUpTab">
+                Sign Up
+            </button>
+
+        </div>
+
+        <input
+            class="auth-input"
+            id="authName"
+            placeholder="Your name"
+        >
+
+        <input
+            class="auth-input"
+            id="authEmail"
+            placeholder="Email"
+            type="email"
+        >
+
+        <input
+            class="auth-input"
+            id="authPassword"
+            placeholder="Password"
+            type="password"
+        >
+
+        <button class="auth-main-btn" id="authSubmit">
+            Continue
+        </button>
+
+        <div class="auth-divider">
+            or continue with
+        </div>
+
+        <div class="auth-socials">
+
+            <button class="auth-social" id="googleLogin">
+                Google
+            </button>
+
+            <button class="auth-social" id="phoneLogin">
+                Phone
+            </button>
+
+            <button class="auth-social" id="gmailLogin">
+                Gmail
+            </button>
+
+        </div>
+
+        <p class="auth-message" id="authMessage"></p>
+
+    </div>
+
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+
+<div class="notification-panel" id="notificationPanel">
+
+    <div class="notification-head">
+        <h3>Notifications</h3>
+        <span>Live</span>
+    </div>
+
+    <div class="notification-list" id="notificationList"></div>
+
+</div>
+
+
+<div class="ai-modal" id="aiModal">
+
+    <div class="ai-card">
+
+        <button class="ai-close" id="aiClose">
+            ✕
+        </button>
+
+        <h2>
+            CINEMII AI
+        </h2>
+
+        <p>
+            Tell me your mood, and I’ll find something cinematic.
+        </p>
+
+        <div class="ai-input-row">
+
+            <input
+                id="aiInput"
+                placeholder="Example: dark thriller, vampire romance..."
+            >
+
+            <button id="aiSearchBtn">
+                Search
+            </button>
+
+        </div>
+
+        <div class="ai-results" id="aiResults"></div>
+
+    </div>
+
+</div>
+
+
+<body>
+
+<div class="app">
+
+<header class="navbar">
+
+<div
+class="logo"
+id="logoBtn"
+>
+CINEMII
+</div>
+
+<nav class="nav-links">
+
+<button
+class="nav-btn active"
+id="homeBtn"
+data-i18n="home"
+>
+Home
+</button>
+
+<button
+class="nav-btn"
+id="trendingBtn"
+data-i18n="trending"
+>
+Trending
+</button>
+
+<button
+class="nav-btn"
+id="popularBtn"
+data-i18n="popular"
+>
+Popular
+</button>
+
+<button
+class="nav-btn"
+id="topRatedBtn"
+data-i18n="topRated"
+>
+Top Rated
+</button>
+
+<button
+class="nav-btn"
+id="globalShowBtn"
+data-i18n="globalShow"
+>
+Global Show
+</button>
+
+<button
+class="nav-btn"
+id="profileBtn"
+data-i18n="profile"
+>
+Profile
+</button>
+
+<button class="nav-btn" id="aiBtn">
+AI
+</button>
+
+<button class="nav-btn auth-open-btn" id="authBtn">
+Sign In
+</button>
+
+<button class="nav-btn notification-btn" id="notificationBtn">
+    🔔
+</button>
+
+</nav>
+
+<div class="search-box">
+
+<input
+type="text"
+placeholder="Search movies..."
+id="searchInput"
+data-i18n-placeholder="search"
+
+
+/>
+
+</div>
+
+</header>
+
+<section class="hero">
+
+<div class="hero-backdrop"></div>
+
+<div class="hero-overlay"></div>
+
+<div class="hero-content">
+
+<p class="hero-subtitle">
+NEW CINEMATIC EXPERIENCE
+</p>
+
+<h1 class="hero-title">
+WATCH THE FUTURE
+</h1>
+
+<p class="hero-description">
+Netflix-level cinematic streaming platform.
+Ultra premium movie experience.
+</p>
+
+<div class="hero-buttons">
+
+<button class="primary-btn">
+Watch Now
+</button>
+
+<button class="secondary-btn">
+More Info
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="moviesGrid"></section>
+
+<main class="content">
+
+<h2 class="section-title">
+Trending Movies
+</h2>
+
+<div
+class="movies-grid"
+id="moviesGrid"
+></div>
+
+</main>
+
+</div>
+
+<script
+type="module"
+src="./assets/js/core/app.js"
+></script>
+
+</body>
+</html>

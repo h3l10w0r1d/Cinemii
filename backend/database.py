@@ -26,3 +26,43 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def ensure_user_columns():
+    """Lightweight migration: add new `users` columns to an existing DB.
+
+    `Base.metadata.create_all` only creates missing *tables*, never new columns
+    on a table that already exists. This adds the profile/2FA columns in place
+    so upgrading doesn't require dropping the database. Works on SQLite + Postgres.
+    """
+    from sqlalchemy import inspect, text
+
+    insp = inspect(engine)
+    if "users" not in insp.get_table_names():
+        return  # fresh DB — create_all already built the full table
+
+    existing = {c["name"] for c in insp.get_columns("users")}
+    is_pg = engine.dialect.name == "postgresql"
+    false_default = "FALSE" if is_pg else "0"
+
+    column_defs = {
+        "username": "VARCHAR(40)",
+        "bio": "VARCHAR(300)",
+        "date_of_birth": "VARCHAR(10)",
+        "two_factor_enabled": f"BOOLEAN NOT NULL DEFAULT {false_default}",
+        "two_factor_secret": "VARCHAR(64)",
+    }
+
+    with engine.begin() as conn:
+        for name, ddl in column_defs.items():
+            if name not in existing:
+                conn.execute(text(f"ALTER TABLE users ADD COLUMN {name} {ddl}"))
+        try:
+            conn.execute(
+                text(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_username "
+                    "ON users (username)"
+                )
+            )
+        except Exception:
+            pass  # index may already exist under a different name

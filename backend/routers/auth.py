@@ -8,7 +8,12 @@ from database import get_db
 from deps import get_current_user
 from models import User
 from schemas import GoogleIn, LoginIn, SignupIn, TokenOut, UserOut
-from security import create_access_token, hash_password, verify_password
+from security import (
+    create_access_token,
+    hash_password,
+    verify_2fa,
+    verify_password,
+)
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -44,7 +49,7 @@ def signup(body: SignupIn, db: Session = Depends(get_db)):
     return _issue(user)
 
 
-@router.post("/login", response_model=TokenOut)
+@router.post("/login")
 def login(body: LoginIn, db: Session = Depends(get_db)):
     email = body.email.lower().strip()
     user = db.query(User).filter(User.email == email).first()
@@ -56,6 +61,18 @@ def login(body: LoginIn, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password.",
         )
+
+    # Second factor, when enabled. Password is already verified at this point,
+    # so prompting for the code here doesn't leak account existence.
+    if user.two_factor_enabled:
+        if not body.otp_code:
+            # Signal the client to collect a code, without issuing a token.
+            return {"requires_2fa": True}
+        if not verify_2fa(user.two_factor_secret, body.otp_code):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid two-factor code.",
+            )
 
     return _issue(user)
 

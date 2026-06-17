@@ -17,6 +17,7 @@ class SignupIn(BaseModel):
 class LoginIn(BaseModel):
     email: EmailStr
     password: str = Field(min_length=1, max_length=128)
+    otp_code: Optional[str] = Field(default=None, max_length=10)
 
 
 class GoogleIn(BaseModel):
@@ -26,9 +27,14 @@ class GoogleIn(BaseModel):
 class UserOut(BaseModel):
     id: int
     name: str
+    username: Optional[str] = None
     email: EmailStr
     provider: str
     picture: Optional[str] = None
+    bio: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    two_factor_enabled: bool = False
+    has_password: bool = False
     created_at: datetime
 
     class Config:
@@ -39,6 +45,41 @@ class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserOut
+
+
+# --- Account / profile management -------------------------------------------
+
+class ProfileUpdateIn(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=120)
+    username: Optional[str] = Field(default=None, min_length=3, max_length=40)
+    bio: Optional[str] = Field(default=None, max_length=300)
+    date_of_birth: Optional[str] = Field(default=None, max_length=10)
+    picture: Optional[str] = Field(default=None, max_length=512)
+
+
+class EmailChangeIn(BaseModel):
+    new_email: EmailStr
+    password: str = Field(min_length=1, max_length=128)
+
+
+class PasswordChangeIn(BaseModel):
+    # current_password is optional so Google users can *set* a first password.
+    current_password: Optional[str] = Field(default=None, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class TwoFASetupOut(BaseModel):
+    secret: str
+    otpauth_uri: str
+    qr_svg: str  # inline data URI
+
+
+class TwoFACodeIn(BaseModel):
+    code: str = Field(min_length=6, max_length=10)
+
+
+class DeleteAccountIn(BaseModel):
+    password: Optional[str] = Field(default=None, max_length=128)
 
 
 # --- Watch progress ---------------------------------------------------------

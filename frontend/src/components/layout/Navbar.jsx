@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Play, Bell, User, LogOut, Menu, X, Tv, Star, Users, MessageCircle, Search } from 'lucide-react';
+import { Play, Bell, User, LogOut, Menu, X, Tv, Star, Users, MessageCircle, Search, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { AuthModal } from '../auth/AuthModal';
 import { HeaderSearch } from './HeaderSearch';
@@ -130,6 +130,9 @@ export function Navbar() {
                 <div className="absolute right-0 top-full mt-2 w-44 glass-dark rounded-xl shadow-xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0 border border-white/10">
                   <button onClick={() => navigate('/profile')} className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition flex items-center gap-2.5">
                     <User size={14} className="text-muted" /> Profile
+                  </button>
+                  <button onClick={() => navigate('/settings')} className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition flex items-center gap-2.5 border-t border-white/5">
+                    <Settings size={14} className="text-muted" /> Settings
                   </button>
                   <button onClick={() => navigate('/room')} className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition flex items-center gap-2.5 border-t border-white/5">
                     <Users size={14} className="text-muted" /> Watch Together

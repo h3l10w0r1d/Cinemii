@@ -15,6 +15,8 @@ export function AuthModal({ onClose }) {
   const [name, setName]             = useState('');
   const [email, setEmail]           = useState('');
   const [password, setPassword]     = useState('');
+  const [twofa, setTwofa]           = useState(false); // 2FA code step
+  const [otp, setOtp]               = useState('');
 
   // Google Sign-In button
   useEffect(() => {
@@ -67,7 +69,14 @@ export function AuthModal({ onClose }) {
         if (password.length < 8) throw new Error('Password must be at least 8 characters.');
         result = await api.signup(name.trim(), email.trim(), password);
       } else {
-        result = await api.login(email.trim(), password);
+        result = await api.login(email.trim(), password, twofa ? otp.trim() : undefined);
+        // Account has 2FA — switch to code-entry step instead of logging in.
+        if (result?.requires_2fa) {
+          setTwofa(true);
+          setMsg({ text: 'Enter the 6-digit code from your authenticator app.', ok: true });
+          setLoading(false);
+          return;
+        }
       }
       login(result.access_token, result.user);
       setMsg({ text: `Welcome${tab === 'signup' ? '' : ' back'}, ${result.user.name}!`, ok: true });
@@ -100,60 +109,86 @@ export function AuthModal({ onClose }) {
           <p className="text-muted text-sm mt-1">Your cinema, your rules</p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex rounded-xl bg-surface p-1 mb-6">
-          {['signin', 'signup'].map((t) => (
-            <button
-              key={t}
-              onClick={() => { setTab(t); setMsg(null); }}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                tab === t
-                  ? 'bg-accent text-white shadow'
-                  : 'text-muted hover:text-white'
-              }`}
-            >
-              {t === 'signin' ? 'Sign In' : 'Sign Up'}
-            </button>
-          ))}
-        </div>
+        {/* Tabs (hidden during 2FA step) */}
+        {!twofa && (
+          <div className="flex rounded-xl bg-surface p-1 mb-6">
+            {['signin', 'signup'].map((t) => (
+              <button
+                key={t}
+                onClick={() => { setTab(t); setMsg(null); }}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  tab === t ? 'bg-accent text-white shadow' : 'text-muted hover:text-white'
+                }`}
+              >
+                {t === 'signin' ? 'Sign In' : 'Sign Up'}
+              </button>
+            ))}
+          </div>
+        )}
 
-        {/* Google button */}
-        <div ref={googleBtnRef} className="w-full mb-4" />
-
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-muted text-xs">or with email</span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
+        {/* Google + divider (hidden during 2FA step) */}
+        {!twofa && (
+          <>
+            <div ref={googleBtnRef} className="w-full mb-4" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-muted text-xs">or with email</span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+          </>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          {tab === 'signup' && (
-            <input
-              type="text"
-              placeholder="Full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full glass rounded-xl px-4 py-3 text-white placeholder:text-muted text-sm focus:outline-none focus:border-accent/60 border border-transparent transition"
-            />
+          {twofa ? (
+            <>
+              <div className="text-center mb-1">
+                <p className="text-white font-semibold">Two-factor verification</p>
+                <p className="text-muted text-xs mt-1">Open your authenticator app and enter the 6-digit code.</p>
+              </div>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                placeholder="000000"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                autoFocus
+                required
+                className="w-full glass rounded-xl px-4 py-3 text-white placeholder:text-muted text-center text-2xl tracking-[0.5em] font-bold focus:outline-none focus:border-accent/60 border border-transparent transition"
+              />
+            </>
+          ) : (
+            <>
+              {tab === 'signup' && (
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full glass rounded-xl px-4 py-3 text-white placeholder:text-muted text-sm focus:outline-none focus:border-accent/60 border border-transparent transition"
+                />
+              )}
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full glass rounded-xl px-4 py-3 text-white placeholder:text-muted text-sm focus:outline-none focus:border-accent/60 border border-transparent transition"
+              />
+              <input
+                type="password"
+                placeholder={tab === 'signup' ? 'Password (8+ characters)' : 'Password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full glass rounded-xl px-4 py-3 text-white placeholder:text-muted text-sm focus:outline-none focus:border-accent/60 border border-transparent transition"
+              />
+            </>
           )}
-          <input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full glass rounded-xl px-4 py-3 text-white placeholder:text-muted text-sm focus:outline-none focus:border-accent/60 border border-transparent transition"
-          />
-          <input
-            type="password"
-            placeholder={tab === 'signup' ? 'Password (8+ characters)' : 'Password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full glass rounded-xl px-4 py-3 text-white placeholder:text-muted text-sm focus:outline-none focus:border-accent/60 border border-transparent transition"
-          />
 
           {msg && (
             <p className={`text-sm text-center py-2 px-3 rounded-lg ${msg.ok ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
@@ -166,8 +201,18 @@ export function AuthModal({ onClose }) {
             disabled={loading}
             className="w-full gradient-accent text-white font-bold py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-1"
           >
-            {loading ? 'Please wait…' : tab === 'signin' ? 'Sign In' : 'Create Account'}
+            {loading ? 'Please wait…' : twofa ? 'Verify' : tab === 'signin' ? 'Sign In' : 'Create Account'}
           </button>
+
+          {twofa && (
+            <button
+              type="button"
+              onClick={() => { setTwofa(false); setOtp(''); setMsg(null); }}
+              className="text-muted text-xs hover:text-white transition"
+            >
+              ← Back to sign in
+            </button>
+          )}
         </form>
       </div>
     </div>

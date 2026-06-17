@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Edit3, Check, X, Film, Clock, Heart, Trophy } from 'lucide-react';
+import { LogOut, Edit3, Check, X, Film, Clock, Heart, Trophy, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../core/backend';
 import { imgUrl } from '../core/tmdb';
@@ -114,12 +114,20 @@ export function Profile() {
             </p>
           </div>
 
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 glass text-accent border border-accent/20 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-accent/10 transition active:scale-95"
-          >
-            <LogOut size={15} /> Sign Out
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/settings')}
+              className="flex items-center gap-2 glass text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-white/10 transition active:scale-95"
+            >
+              <Settings size={15} /> Settings
+            </button>
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 glass text-accent border border-accent/20 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-accent/10 transition active:scale-95"
+            >
+              <LogOut size={15} /> Sign Out
+            </button>
+          </div>
         </div>
 
         {/* Stats */}

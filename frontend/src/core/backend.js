@@ -50,9 +50,18 @@ async function request(method, path, { body, auth = false } = {}) {
 
 export const api = {
   signup:         (name, email, password) => request('POST', '/api/auth/signup',  { body: { name, email, password } }),
-  login:          (email, password)       => request('POST', '/api/auth/login',   { body: { email, password } }),
+  login:          (email, password, otp_code) => request('POST', '/api/auth/login', { body: { email, password, otp_code } }),
   google:         (credential)            => request('POST', '/api/auth/google',  { body: { credential } }),
   me:             ()                      => request('GET',  '/api/auth/me',       { auth: true }),
+
+  // Account / profile management
+  updateProfile:  (data)                  => request('PATCH', '/api/auth/profile',         { body: data, auth: true }),
+  changeEmail:    (new_email, password)   => request('POST',  '/api/auth/change-email',    { body: { new_email, password }, auth: true }),
+  changePassword: (current_password, new_password) => request('POST', '/api/auth/change-password', { body: { current_password, new_password }, auth: true }),
+  twofaSetup:     ()                      => request('POST',  '/api/auth/2fa/setup',        { auth: true }),
+  twofaEnable:    (code)                  => request('POST',  '/api/auth/2fa/enable',       { body: { code }, auth: true }),
+  twofaDisable:   (code)                  => request('POST',  '/api/auth/2fa/disable',      { body: { code }, auth: true }),
+  deleteAccount:  (password)              => request('DELETE','/api/auth/account',          { body: { password }, auth: true }),
 
   streamInfo:     (type, id)              => request('GET',  `/api/stream/info/${type}/${id}`, { auth: true }),
 

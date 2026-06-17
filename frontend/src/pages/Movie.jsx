@@ -45,20 +45,53 @@ export function Movie() {
 
   // Initial watchlist membership
   useEffect(() => {
-    if (!isLoggedIn()) { setInWL(false); return; }
-    api.listWatchlist()
-      .then(list => setInWL((list || []).some(w => String(w.media_id) === String(id) && w.media_type === mediaType)))
-      .catch(() => {});
-  }, [id, mediaType]);
+  if (!isLoggedIn() || typeof api.listWatchlist !== 'function') {
+    setInWL(false);
+    return;
+  }
+
+  api.listWatchlist()
+    .then(list => {
+      setInWL(
+        (list || []).some(
+          w => String(w.media_id) === String(id) && w.media_type === mediaType
+        )
+      );
+    })
+    .catch(() => setInWL(false));
+}, [id, mediaType]);
 
   const toggleWatchlist = async () => {
-    if (!isLoggedIn()) return;
-    try {
-      if (inWatchlist) { await api.removeWatchlist(mediaType, id); success('Removed from your watchlist'); }
-      else { await api.addWatchlist({ media_type: mediaType, media_id: String(id), title: movie.title || movie.name, poster_path: movie.poster_path }); success('Added to your watchlist'); }
-      setInWL(v => !v);
-    } catch { toastError('Could not update watchlist.'); }
-  };
+  if (!isLoggedIn()) return;
+
+  if (
+    typeof api.listWatchlist !== 'function' ||
+    typeof api.addWatchlist !== 'function' ||
+    typeof api.removeWatchlist !== 'function'
+  ) {
+    toastError('Watchlist is not ready yet.');
+    return;
+  }
+
+  try {
+    if (inWatchlist) {
+      await api.removeWatchlist(mediaType, id);
+      success('Removed from your watchlist');
+    } else {
+      await api.addWatchlist({
+        media_type: mediaType,
+        media_id: String(id),
+        title: movie.title || movie.name,
+        poster_path: movie.poster_path,
+      });
+      success('Added to your watchlist');
+    }
+
+    setInWL(v => !v);
+  } catch {
+    toastError('Could not update watchlist.');
+  }
+};
 
   if (loading) return <DetailSkeleton />;
   if (!movie)  return <div className="min-h-screen flex items-center justify-center text-muted">Not found.</div>;

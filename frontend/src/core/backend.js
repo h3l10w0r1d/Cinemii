@@ -72,6 +72,15 @@ export const api = {
   listFavorites:  ()                      => request('GET',  '/api/favorites',                     { auth: true }),
   addFavorite:    (data)                  => request('POST', '/api/favorites',                      { body: data, auth: true }),
   removeFavorite: (type, id)              => request('DELETE', `/api/favorites/${type}/${id}`,      { auth: true }),
+  // Watchlist
+  listWatchlist:   ()        => request('GET',    '/api/watchlist',                 { auth: true }),
+  addWatchlist:    (data)    => request('POST',   '/api/watchlist',                 { body: data, auth: true }),
+  removeWatchlist: (type, id) => request('DELETE', `/api/watchlist/${type}/${id}`,  { auth: true }),
+
+  // Watchlist
+  listWatchlist:   ()         => request('GET',    '/api/watchlist',                { auth: true }),
+  addWatchlist:    (data)     => request('POST',   '/api/watchlist',                { body: data, auth: true }),
+  removeWatchlist: (type, id) => request('DELETE', `/api/watchlist/${type}/${id}`,  { auth: true }),
 
     // Friends
   listFriends:          ()        => request('GET',  '/api/friends',               { auth: true }),
@@ -80,6 +89,11 @@ export const api = {
   listFriendRequests:   ()        => request('GET',  '/api/friends/requests',      { auth: true }),
   acceptFriendRequest:  (id)      => request('POST', `/api/friends/accept/${id}`,  { auth: true }),
   rejectFriendRequest:  (id)      => request('POST', `/api/friends/reject/${id}`,  { auth: true }),
+
+  // Reviews
+  getReview:    (type, id) => request('GET',  `/api/reviews/${type}/${id}`, { auth: true }),
+  saveReview:   (data)     => request('POST', '/api/reviews',               { body: data, auth: true }),
+  deleteReview: (type, id) => request('DELETE', `/api/reviews/${type}/${id}`, { auth: true }),
 
   listRooms:      ()                      => request('GET',  '/api/rooms'),
 };

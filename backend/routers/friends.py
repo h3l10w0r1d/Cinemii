@@ -27,14 +27,16 @@ def search_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    query = q.strip().lower().replace("@", "")
+
     users = (
         db.query(User)
         .filter(User.id != current_user.id)
         .filter(
             or_(
-                User.name.ilike(f"%{q}%"),
-                User.username.ilike(f"%{q}%"),
-                User.email.ilike(f"%{q}%"),
+                User.name.ilike(f"%{query}%"),
+                User.username.ilike(f"%{query}%"),
+                User.email.ilike(f"%{query}%"),
             )
         )
         .limit(20)

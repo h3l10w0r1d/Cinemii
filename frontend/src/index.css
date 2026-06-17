@@ -124,3 +124,106 @@ body {
 img {
   transform: none !important;
 }
+header,
+nav,
+.navbar,
+.topbar {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+header::before,
+header::after,
+nav::before,
+nav::after,
+.navbar::before,
+.navbar::after,
+.topbar::before,
+.topbar::after {
+  display: none !important;
+}
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  background: #050505 !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+}
+
+main,
+section,
+header,
+nav,
+div {
+  max-width: 100%;
+}
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  background: #050505 !important;
+  }
+
+#root {
+  width: 100% !important;
+  min-height: 100vh !important;
+  background: #050505 !important;
+}
+
+body {
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: #050505;
+  z-index: -9999;
+  pointer-events: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  background: #050505 !important;
+  overscroll-behavior-y: contain;
+  overflow-x: hidden !important;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #050505 !important;
+  overflow-x: hidden !important;
+}
+
+#root {
+  min-height: 100vh;
+  background: #050505 !important;
+  overflow-x: hidden !important;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: #050505;
+  z-index: -1;
+}

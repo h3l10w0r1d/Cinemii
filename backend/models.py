@@ -198,8 +198,8 @@ class Message(Base):
     )
 
     text = Column(String(1000), nullable=False)
-
     created_at = Column(DateTime, default=_utcnow)
+    read_at = Column(DateTime, nullable=True)
 
     from_user = relationship("User", foreign_keys=[from_user_id])
     to_user = relationship("User", foreign_keys=[to_user_id])    

@@ -14,7 +14,6 @@ function resolveSource(src) {
 }
 
 export function CinemaPlayer({ mediaType, mediaId, title, onClose }) {
-  const videoRef = useRef(null);
   const boxRef   = useRef(null);
   const timerRef = useRef(null);
   const [info, setInfo]       = useState(null);
@@ -30,22 +29,6 @@ export function CinemaPlayer({ mediaType, mediaId, title, onClose }) {
   }, [mediaType, mediaId]);
 
   // Load source + restore resume position, volume, rate
-  useEffect(() => {
-    if (!info?.source || !videoRef.current) return;
-    const video = videoRef.current;
-    video.src = resolveSource(info.source);
-    const savedVol = localStorage.getItem(VOL_KEY);
-    if (savedVol !== null) video.volume = Number(savedVol);
-    video.playbackRate = rate;
-
-    const resumeAt = Number(info.resume_seconds || localStorage.getItem(localKey) || 0);
-    const onMeta = () => {
-      if (resumeAt > 1 && resumeAt < video.duration - 5) video.currentTime = resumeAt;
-      video.playbackRate = rate;
-    };
-    video.addEventListener('loadedmetadata', onMeta);
-    return () => video.removeEventListener('loadedmetadata', onMeta);
-  }, [info, localKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const persist = useCallback(() => {
     const video = videoRef.current;
@@ -88,12 +71,10 @@ export function CinemaPlayer({ mediaType, mediaId, title, onClose }) {
     setCaps(next);
   }, []);
 
-  const handleClose = useCallback(() => {
-    persist();
-    clearInterval(timerRef.current);
-    videoRef.current?.pause();
-    onClose();
-  }, [persist, onClose]);
+const handleClose = useCallback(() => {
+  clearInterval(timerRef.current);
+  onClose();
+}, [onClose]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -115,7 +96,6 @@ export function CinemaPlayer({ mediaType, mediaId, title, onClose }) {
         default: break;
       }
     };
-    document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [handleClose, toggleFullscreen, toggleCaptions]);
@@ -184,18 +164,9 @@ export function CinemaPlayer({ mediaType, mediaId, title, onClose }) {
             <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <video
-            ref={videoRef}
-            className="w-full aspect-video bg-black"
-            controls
-            autoPlay
-            playsInline
-            onPause={persist}
-            onEnded={persist}
-            crossOrigin="anonymous"
-          >
-            <track kind="subtitles" src="/sample.en.vtt" srcLang="en" label="English" />
-          </video>
+<iframe src="https://www.2embed.online/embed/movie/{mediaId}"
+        width="100%" height="100%"
+        frameborder="0" allowfullscreen></iframe>
         )}
 
         {/* Bottom bar */}

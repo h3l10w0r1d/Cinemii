@@ -11,7 +11,7 @@ from config import ALLOWED_ORIGINS, ALLOWED_ORIGIN_REGEX
 from database import Base, engine, ensure_admins, ensure_user_columns
 from routers import (
     account, auth, catalog, content, friends, library, messages,
-    realtime, social, stream, tmdb_proxy,
+    movie_sources, realtime, social, stream, tmdb_proxy,
 )
 
 # Create tables on startup (fine for SQLite/staging; use Alembic for prod).
@@ -58,6 +58,8 @@ app.include_router(friends.router)
 app.include_router(messages.router)
 app.include_router(catalog.admin_router)
 app.include_router(catalog.public_router)
+app.include_router(movie_sources.admin_router)
+app.include_router(movie_sources.public_router)
 
 
 @app.get("/api/health", tags=["meta"])

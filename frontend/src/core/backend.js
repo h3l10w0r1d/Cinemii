@@ -83,6 +83,20 @@ export const api = {
   // the title isn't licensed — callers treat that as "no source".
   getStreamSource: (id, type = 'movie') => request('GET', `/api/stream/source/${id}?media_type=${encodeURIComponent(type)}`),
 
+  // Public movie stream gate (spec shape). Returns 200 with { available, ... };
+  // never throws on "not licensed" — `available:false` carries the message.
+  getMovieStream: (id) => request('GET', `/api/stream/movie/${encodeURIComponent(id)}`),
+
+  // Movie Sources CMS (admin only) — backend PROPOSES the magnets; the client
+  // never types one. Flow: proposals -> pick -> confirm rights -> create.
+  adminMovieSourceProposals: (tmdbId) => request('GET', `/api/admin/movie-sources/proposals?tmdb_id=${encodeURIComponent(tmdbId)}`, { auth: true }),
+  adminListMovieSources:     ()          => request('GET',    '/api/admin/movie-sources',          { auth: true }),
+  adminGetMovieSource:       (id)        => request('GET',    `/api/admin/movie-sources/${id}`,     { auth: true }),
+  adminCreateMovieSource:    (data)      => request('POST',   '/api/admin/movie-sources',          { body: data, auth: true }),
+  adminUpdateMovieSource:    (id, data)  => request('PUT',    `/api/admin/movie-sources/${id}`,     { body: data, auth: true }),
+  adminDeactivateMovieSource:(id)        => request('PATCH',  `/api/admin/movie-sources/${id}/deactivate`, { auth: true }),
+  adminDeleteMovieSource:    (id)        => request('DELETE', `/api/admin/movie-sources/${id}`,     { auth: true }),
+
   // Licensing CMS (admin only)
   adminListCatalog:   ()         => request('GET',    '/api/admin/catalog',          { auth: true }),
   adminListSources:   ()         => request('GET',    '/api/admin/catalog/sources',  { auth: true }),

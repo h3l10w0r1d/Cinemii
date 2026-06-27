@@ -86,6 +86,29 @@ def ensure_user_columns():
             if "read_at" not in existing_messages:
                 conn.execute(text("ALTER TABLE messages ADD COLUMN read_at TIMESTAMP"))
 
+    # Lightweight migration for licensed_titles (movie streaming sources).
+    if "licensed_titles" in insp.get_table_names():
+        existing_lt = {c["name"] for c in insp.get_columns("licensed_titles")}
+        # rights_confirmed defaults FALSE: existing rows become non-playable
+        # until an admin re-confirms rights — the safe, strict default.
+        lt_cols = {
+            "quality": "VARCHAR(10)",
+            "language": "VARCHAR(20)",
+            "subtitles": "TEXT",
+            "rights_confirmed": f"BOOLEAN NOT NULL DEFAULT {false_default}",
+            "created_by": "INTEGER",
+            # Proposal provenance for backend-proposed WebTorrent sources.
+            "source_provider": "VARCHAR(80)",
+            "info_hash": "VARCHAR(64)",
+            "file_size": "INTEGER",
+            "seeders": "INTEGER",
+            "peers": "INTEGER",
+        }
+        with engine.begin() as conn:
+            for name, ddl in lt_cols.items():
+                if name not in existing_lt:
+                    conn.execute(text(f"ALTER TABLE licensed_titles ADD COLUMN {name} {ddl}"))
+
 
 def ensure_admins():
     """Promote configured CINEMII_ADMIN_EMAILS accounts to admin on startup.

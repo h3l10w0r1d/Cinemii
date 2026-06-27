@@ -274,12 +274,32 @@ class LicensedTitle(Base):
     source_type = Column(String(20), nullable=False, default="webtorrent")
     source_url = Column(Text, nullable=False)
 
+    # Optional playback metadata.
+    quality = Column(String(10), nullable=True)        # 480p | 720p | 1080p | 4K
+    language = Column(String(20), nullable=True)       # e.g. "en"
+    subtitles = Column(Text, nullable=True)            # JSON list of subtitle entries
+
+    # Proposal provenance — populated when the row was created from a
+    # backend-PROPOSED WebTorrent source (see services/movie_sources.py). The
+    # frontend NEVER supplies these; they describe which provider proposed the
+    # magnet and the swarm health at save time. Display-only metadata.
+    source_provider = Column(String(80), nullable=True)   # e.g. "internet-archive", "dev-test"
+    info_hash = Column(String(64), nullable=True, index=True)  # torrent infohash (hex)
+    file_size = Column(Integer, nullable=True)            # bytes, if the provider reported it
+    seeders = Column(Integer, nullable=True)             # swarm seeders at save time
+    peers = Column(Integer, nullable=True)               # swarm peers at save time
+
     # Provenance — why we are allowed to stream this.
     license_type = Column(String(60), nullable=True)   # "CC-BY" | "Owned" | "Distributor" | ...
     rights_holder = Column(String(200), nullable=True)
-    license_ref = Column(Text, nullable=True)          # note / URL to the agreement or proof
-    expires_at = Column(DateTime, nullable=True)       # null = no expiry
+    license_ref = Column(Text, nullable=True)          # rights_note: agreement / proof / why cleared
+    expires_at = Column(DateTime, nullable=True)       # rights_expires_at; null = no expiry
 
+    # Strict rights gate: a source is ONLY served to the player when
+    # is_active AND rights_confirmed AND (expires_at is null or in the future).
+    rights_confirmed = Column(Boolean, nullable=False, default=False)
     is_active = Column(Boolean, nullable=False, default=True)
+
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)  # admin who added it
     created_at = Column(DateTime, default=_utcnow)
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)

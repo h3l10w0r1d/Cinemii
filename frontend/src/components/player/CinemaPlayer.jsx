@@ -9,9 +9,10 @@ import { DirectVideoPlayer } from "./DirectVideoPlayer";
 // CinemaPlayer — movie player entry point.
 //
 // Flow:
-//   1. Ask the backend licensing CMS for an AUTHORIZED source for this TMDB id
-//      (GET /api/stream/source/{id}). Returns a source only if the title is
-//      licensed; otherwise 403.
+//   1. Ask the backend movie gate for this TMDB id (GET /api/stream/movie/{id}).
+//      The backend returns a source ONLY when a saved source is rights-confirmed,
+//      active and non-expired ({ available, source_type, magnet_uri, ... }). The
+//      frontend never decides rights and never builds or holds magnets.
 //   2. resolveMovieSource() prefers that authorized source. In DEVELOPMENT only,
 //      if the backend has nothing, it falls back to the local CC test map.
 //   3. Mount the right concrete player for the source type:
@@ -36,9 +37,26 @@ export function CinemaPlayer({ mediaType = "movie", mediaId, title, onClose }) {
     }
     setBackendSource(undefined);
     api
-      .getStreamSource(mediaId, mediaType)
-      .then((src) => active && setBackendSource(src))
-      .catch(() => active && setBackendSource(null)); // 403 / offline -> none
+      .getMovieStream(mediaId)
+      .then((data) => {
+        if (!active) return;
+        // Map the public movie gate response to the source shape the player
+        // expects. `available:false` -> no source (player shows a message).
+        if (data && data.available && data.source_type === "webtorrent" && data.magnet_uri) {
+          setBackendSource({
+            source_type: "webtorrent",
+            magnet_uri: data.magnet_uri,
+            tmdb_id: String(mediaId),
+            is_authorized: true,
+            license: data.license,
+            quality: data.quality,
+            language: data.language,
+          });
+        } else {
+          setBackendSource(null);
+        }
+      })
+      .catch(() => active && setBackendSource(null)); // offline -> none
     return () => {
       active = false;
     };
@@ -61,7 +79,7 @@ export function CinemaPlayer({ mediaType = "movie", mediaId, title, onClose }) {
         message={
           import.meta.env.DEV
             ? "No licensed or test stream configured for this movie."
-            : "This title isn't available to stream yet."
+            : "This movie is not available for streaming yet."
         }
         title={title}
         mediaId={mediaId}

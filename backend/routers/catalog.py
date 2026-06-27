@@ -10,6 +10,7 @@ public (the player calls it before playing) but only ever reveals authorized
 sources.
 """
 
+import json
 import os
 from datetime import datetime, timezone
 from typing import List, Optional
@@ -22,10 +23,16 @@ from sqlalchemy.orm import Session
 import config
 from database import get_db
 from deps import require_admin
-from models import LicensedTitle
-from schemas import LicensedTitleIn, LicensedTitleOut, StreamSourceOut
+from models import LicensedTitle, User
+from schemas import (
+    LicensedTitleIn,
+    LicensedTitleOut,
+    MovieStreamOut,
+    StreamSourceOut,
+)
 
 ALLOWED_SOURCE_TYPES = {"webtorrent", "mp4", "hls", "file"}
+ALLOWED_QUALITIES = {"480p", "720p", "1080p", "4K"}
 
 # Extensions we treat as playable video when auto-listing your own libraries.
 VIDEO_EXTS = {"mp4", "webm", "m4v", "mov", "mkv", "m3u8", "ogg", "ogv"}
@@ -134,11 +141,20 @@ def _validate_payload(body: LicensedTitleIn) -> None:
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"{body.source_type} source_url must be an http(s) URL.",
         )
+    if body.quality and body.quality not in ALLOWED_QUALITIES:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"quality must be one of {sorted(ALLOWED_QUALITIES)}.",
+        )
 
 
 def _apply(row: LicensedTitle, body: LicensedTitleIn) -> None:
-    for field, value in body.model_dump().items():
+    data = body.model_dump()
+    # subtitles is a list in the API but stored as a JSON string.
+    subs = data.pop("subtitles", None)
+    for field, value in data.items():
         setattr(row, field, value)
+    row.subtitles = json.dumps(subs) if subs else None
     row.tmdb_id = str(row.tmdb_id)
     row.source_url = body.source_url.strip()
 

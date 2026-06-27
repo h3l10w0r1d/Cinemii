@@ -246,6 +246,9 @@ export function Admin() {
         <p className="text-muted mt-1 text-sm">
           The allowlist of titles you're cleared to stream. Only titles listed here (active &amp; unexpired) will play.
         </p>
+        <Link to="/admin/movie-sources" className="inline-flex items-center gap-1.5 mt-3 text-sm text-accent hover:underline">
+          <Film size={14} /> Movie Sources — backend-proposed WebTorrent sources
+        </Link>
       </header>
 
       {/* Form */}

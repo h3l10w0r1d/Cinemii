@@ -35,6 +35,7 @@ class UserOut(BaseModel):
     date_of_birth: Optional[str] = None
     two_factor_enabled: bool = False
     has_password: bool = False
+    is_admin: bool = False
     created_at: datetime
 
     class Config:
@@ -189,3 +190,40 @@ class StreamInfoOut(BaseModel):
     title: Optional[str] = None
     resume_seconds: float = 0.0
     license: str
+
+
+# --- Licensing CMS ----------------------------------------------------------
+
+class LicensedTitleIn(BaseModel):
+    media_type: str = Field(default="movie", max_length=10)
+    tmdb_id: str = Field(max_length=32)
+    title: Optional[str] = Field(default=None, max_length=300)
+    poster_path: Optional[str] = Field(default=None, max_length=300)
+    source_type: str = Field(default="webtorrent", max_length=20)
+    source_url: str = Field(min_length=1, max_length=4000)
+    license_type: Optional[str] = Field(default=None, max_length=60)
+    rights_holder: Optional[str] = Field(default=None, max_length=200)
+    license_ref: Optional[str] = Field(default=None, max_length=4000)
+    expires_at: Optional[datetime] = None
+    is_active: bool = True
+
+
+class LicensedTitleOut(LicensedTitleIn):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class StreamSourceOut(BaseModel):
+    """Authorized playable source returned to the player. Mirrors the shape the
+    frontend's resolveMovieSource() expects."""
+    source_type: str
+    tmdb_id: str
+    is_authorized: bool = True
+    magnet_uri: Optional[str] = None   # for source_type == "webtorrent"
+    url: Optional[str] = None          # for mp4 / hls / file
+    title: Optional[str] = None
+    license: Optional[str] = None

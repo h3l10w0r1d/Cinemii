@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from database import get_db
-from deps import get_current_user
+from deps import get_current_user, user_is_admin
 from models import User
 from ratelimit import rate_limiter
 from schemas import GoogleIn, LoginIn, SignupIn, TokenOut, UserOut
@@ -24,7 +24,13 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 _GOOGLE_TOKENINFO = "https://oauth2.googleapis.com/tokeninfo"
 
 
-def _issue(user: User) -> TokenOut:
+def _issue(user: User, db: Session) -> TokenOut:
+    # Persist effective admin status (allowlist / dev-bootstrap) onto the row so
+    # /me and the cached client user stay accurate without a re-login.
+    if user_is_admin(user) and not user.is_admin:
+        user.is_admin = True
+        db.commit()
+        db.refresh(user)
     token = create_access_token(user.id)
     return TokenOut(access_token=token, user=UserOut.model_validate(user))
 
@@ -53,7 +59,7 @@ def signup(body: SignupIn, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
-    return _issue(user)
+    return _issue(user, db)
 
 
 @router.post("/login", dependencies=[Depends(rate_limiter(10, 60))])
@@ -89,7 +95,7 @@ def login(body: LoginIn, db: Session = Depends(get_db)):
                 detail="Invalid two-factor or backup code.",
             )
 
-    return _issue(user)
+    return _issue(user, db)
 
 
 @router.post("/google", response_model=TokenOut)
@@ -126,7 +132,7 @@ async def google_login(body: GoogleIn, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
 
-    return _issue(user)
+    return _issue(user, db)
 
 
 @router.get("/me", response_model=UserOut)

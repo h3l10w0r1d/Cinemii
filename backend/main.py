@@ -8,9 +8,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import ALLOWED_ORIGINS, ALLOWED_ORIGIN_REGEX
-from database import Base, engine, ensure_user_columns
+from database import Base, engine, ensure_admins, ensure_user_columns
 from routers import (
-    account, auth, content, friends, library, messages,
+    account, auth, catalog, content, friends, library, messages,
     realtime, social, stream, tmdb_proxy,
 )
 
@@ -18,6 +18,8 @@ from routers import (
 Base.metadata.create_all(bind=engine)
 # Add any newly-introduced user columns to a pre-existing database.
 ensure_user_columns()
+# Promote configured admin emails (CINEMII_ADMIN_EMAILS).
+ensure_admins()
 
 app = FastAPI(title="CINEMII API", version="1.0.0")
 
@@ -54,6 +56,8 @@ app.include_router(realtime.router)
 app.include_router(tmdb_proxy.router)
 app.include_router(friends.router)
 app.include_router(messages.router)
+app.include_router(catalog.admin_router)
+app.include_router(catalog.public_router)
 
 
 @app.get("/api/health", tags=["meta"])

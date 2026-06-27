@@ -42,6 +42,8 @@ class User(Base):
     two_factor_secret = Column(String(64), nullable=True)
     # JSON array of bcrypt-hashed one-time recovery codes.
     backup_codes = Column(String(2000), nullable=True)
+    # Grants access to the licensing CMS (admin-only endpoints).
+    is_admin = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=_utcnow)
 
     progress = relationship(
@@ -240,4 +242,43 @@ class Message(Base):
     created_at = Column(DateTime, default=_utcnow)
 
     from_user = relationship("User", foreign_keys=[from_user_id])
-    to_user = relationship("User", foreign_keys=[to_user_id])    
+    to_user = relationship("User", foreign_keys=[to_user_id])
+
+
+class LicensedTitle(Base):
+    """A title the operator is cleared to stream, and how it's delivered.
+
+    This is the CMS-backed rights allowlist that GATES playback. The public
+    /api/stream/source endpoint returns a playable source ONLY when an active,
+    non-expired row exists here for the requested title. There is deliberately
+    no fallback to unlicensed content — if it isn't in this table, it doesn't
+    play.
+    """
+
+    __tablename__ = "licensed_titles"
+    __table_args__ = (
+        UniqueConstraint("media_type", "tmdb_id", name="uq_licensed_title"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    media_type = Column(String(10), nullable=False, default="movie")
+    tmdb_id = Column(String(32), nullable=False, index=True)
+    title = Column(String(300), nullable=True)
+    poster_path = Column(String(300), nullable=True)
+
+    # Delivery — how this title is served to the player:
+    #   webtorrent -> source_url is a magnet: URI (use ONLY for CC / owned content)
+    #   mp4 | hls  -> source_url is an https URL to your own CDN / storage
+    #   file       -> source_url is a filename served by /api/stream/file/<name>
+    source_type = Column(String(20), nullable=False, default="webtorrent")
+    source_url = Column(Text, nullable=False)
+
+    # Provenance — why we are allowed to stream this.
+    license_type = Column(String(60), nullable=True)   # "CC-BY" | "Owned" | "Distributor" | ...
+    rights_holder = Column(String(200), nullable=True)
+    license_ref = Column(Text, nullable=True)          # note / URL to the agreement or proof
+    expires_at = Column(DateTime, nullable=True)       # null = no expiry
+
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)

@@ -52,6 +52,7 @@ def ensure_user_columns():
         "two_factor_enabled": f"BOOLEAN NOT NULL DEFAULT {false_default}",
         "two_factor_secret": "VARCHAR(64)",
         "backup_codes": "VARCHAR(2000)",
+        "is_admin": f"BOOLEAN NOT NULL DEFAULT {false_default}",
     }
 
     with engine.begin() as conn:
@@ -75,3 +76,23 @@ def ensure_user_columns():
                 conn.execute(text("ALTER TABLE users ALTER COLUMN picture TYPE TEXT"))
             except Exception:
                 pass
+
+
+def ensure_admins():
+    """Promote configured CINEMII_ADMIN_EMAILS accounts to admin on startup.
+
+    Dev bootstrap (no allowlist configured → first user is admin) is handled
+    dynamically in deps.user_is_admin, so nothing is needed here in that case.
+    """
+    from config import ADMIN_EMAILS
+
+    if not ADMIN_EMAILS:
+        return
+
+    from models import User
+
+    with SessionLocal() as db:
+        db.query(User).filter(User.email.in_(ADMIN_EMAILS)).update(
+            {User.is_admin: True}, synchronize_session=False
+        )
+        db.commit()

@@ -60,6 +60,17 @@ ALLOWED_ORIGIN_REGEX = os.environ.get(
     "CINEMII_ALLOWED_ORIGIN_REGEX", r"https://.*\.vercel\.app"
 )
 
+# --- Admin / CMS ------------------------------------------------------------
+# Comma-separated emails granted admin (licensing CMS) access. These accounts
+# are promoted to admin on startup and at login. In LOCAL DEV, if this is left
+# empty, the very first user (id=1) is treated as admin so you can get in
+# without configuration — see deps.user_is_admin.
+ADMIN_EMAILS = [
+    e.strip().lower()
+    for e in os.environ.get("CINEMII_ADMIN_EMAILS", "").split(",")
+    if e.strip()
+]
+
 # --- TMDB -------------------------------------------------------------------
 # Kept server-side so the key is never shipped in the frontend bundle.
 TMDB_API_KEY = os.environ.get(

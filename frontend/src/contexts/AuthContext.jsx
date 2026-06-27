@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getUser, isLoggedIn, setSession, clearSession } from '../core/backend';
+import { api, getToken, getUser, isLoggedIn, setSession, clearSession } from '../core/backend';
 
 const AuthContext = createContext(null);
 
@@ -25,6 +25,18 @@ export function AuthProvider({ children }) {
     window.addEventListener('cinemii:logout', handler);
     return () => window.removeEventListener('cinemii:logout', handler);
   }, [logout]);
+
+  // Refresh the cached user on mount so newly-added fields (e.g. is_admin)
+  // appear for sessions that logged in before the field existed.
+  useEffect(() => {
+    if (!getToken()) return;
+    api.me()
+      .then((fresh) => {
+        setUser(fresh);
+        setSession(getToken(), fresh);
+      })
+      .catch(() => { /* 401 handler already clears the session */ });
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, loggedIn, login, logout }}>

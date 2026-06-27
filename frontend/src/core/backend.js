@@ -79,6 +79,16 @@ export const api = {
 
   streamInfo:     (type, id)              => request('GET',  `/api/stream/info/${type}/${id}`, { auth: true }),
 
+  // Authorized playable source (gated by the licensing CMS). Throws on 403 when
+  // the title isn't licensed — callers treat that as "no source".
+  getStreamSource: (id, type = 'movie') => request('GET', `/api/stream/source/${id}?media_type=${encodeURIComponent(type)}`),
+
+  // Licensing CMS (admin only)
+  adminListCatalog:   ()         => request('GET',    '/api/admin/catalog',          { auth: true }),
+  adminCreateCatalog: (data)     => request('POST',   '/api/admin/catalog',          { body: data, auth: true }),
+  adminUpdateCatalog: (id, data) => request('PUT',    `/api/admin/catalog/${id}`,    { body: data, auth: true }),
+  adminDeleteCatalog: (id)       => request('DELETE', `/api/admin/catalog/${id}`,    { auth: true }),
+
   getProgress:    (type, id)              => request('GET',  `/api/watch-progress/${type}/${id}`, { auth: true }),
   listProgress:   ()                      => request('GET',  '/api/watch-progress',               { auth: true }),
   saveProgress:   (data)                  => request('POST', '/api/watch-progress',                { body: data, auth: true }),

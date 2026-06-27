@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from config import ADMIN_EMAILS
 from database import get_db
 from models import User
 from security import decode_access_token
@@ -37,4 +38,28 @@ def get_current_user(
     if user is None:
         raise _CREDENTIALS_EXC
 
+    return user
+
+
+def user_is_admin(user: User) -> bool:
+    """Effective admin check.
+
+    True if the user is flagged admin, or their email is in the configured
+    allowlist. As a LOCAL DEV convenience, when no allowlist is configured the
+    first account (id=1) is treated as admin so the CMS is reachable without
+    setup. Set CINEMII_ADMIN_EMAILS in any real deployment.
+    """
+    if getattr(user, "is_admin", False):
+        return True
+    if ADMIN_EMAILS:
+        return (user.email or "").lower() in ADMIN_EMAILS
+    return user.id == 1
+
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    if not user_is_admin(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required.",
+        )
     return user

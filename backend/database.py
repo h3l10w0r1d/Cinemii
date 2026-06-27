@@ -53,6 +53,7 @@ def ensure_user_columns():
         "two_factor_secret": "VARCHAR(64)",
         "backup_codes": "VARCHAR(2000)",
         "is_admin": f"BOOLEAN NOT NULL DEFAULT {false_default}",
+        "last_seen": "TIMESTAMP",
     }
 
     with engine.begin() as conn:
@@ -76,6 +77,14 @@ def ensure_user_columns():
                 conn.execute(text("ALTER TABLE users ALTER COLUMN picture TYPE TEXT"))
             except Exception:
                 pass
+
+    # Lightweight migration for messages table.
+    if "messages" in insp.get_table_names():
+        existing_messages = {c["name"] for c in insp.get_columns("messages")}
+
+        with engine.begin() as conn:
+            if "read_at" not in existing_messages:
+                conn.execute(text("ALTER TABLE messages ADD COLUMN read_at TIMESTAMP"))
 
 
 def ensure_admins():

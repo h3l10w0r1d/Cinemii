@@ -121,5 +121,41 @@ export const api = {
         request("/api/favorites", { method: "POST", body: favorite, auth: true }),
 
     removeFavorite: (mediaType, mediaId) =>
-        request(`/api/favorites/${mediaType}/${mediaId}`, { method: "DELETE", auth: true }),
+    request(`/api/favorites/${mediaType}/${mediaId}`, { method: "DELETE", auth: true }),
+
+// Friends
+listFriends: () =>
+    request("/api/friends", { auth: true }),
+
+searchUsers: (q) =>
+    request(`/api/friends/search?q=${encodeURIComponent(q)}`, { auth: true }),
+
+sendFriendRequest: (userId) =>
+    request(`/api/friends/request/${userId}`, { method: "POST", auth: true }),
+
+listFriendRequests: () =>
+    request("/api/friends/requests", { auth: true }),
+
+acceptFriendRequest: (id) =>
+    request(`/api/friends/accept/${id}`, { method: "POST", auth: true }),
+
+rejectFriendRequest: (id) =>
+    request(`/api/friends/reject/${id}`, { method: "POST", auth: true }),
+
+heartbeat: () =>
+    request("/api/friends/heartbeat", { method: "POST", auth: true }),
+
+// Messages
+listMessages: (friendId) =>
+    request(`/api/messages/${friendId}`, { auth: true }),
+
+sendMessage: (friendId, text) =>
+    request(`/api/messages/${friendId}`, {
+        method: "POST",
+        body: { text },
+        auth: true,
+    }),
+
+listRooms: () =>
+    request("/api/rooms"),
 };

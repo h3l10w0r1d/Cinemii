@@ -21,6 +21,7 @@ const TopRated      = named(() => import('./pages/Browse'), 'TopRated');
 const PublicProfile = named(() => import('./pages/PublicProfile'), 'PublicProfile');
 const Feed          = named(() => import('./pages/Feed'), 'Feed');
 const Admin         = named(() => import('./pages/Admin'), 'Admin');
+const Messages      = named(() => import('./pages/Messages'), 'Messages');
 
 function NotFound() {
   return (
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/movie/:id"   element={<Movie />} />
           <Route path="/tv/:id"      element={<Movie />} />
           <Route path="/person/:id"  element={<Person />} />
+          <Route path="/messages"    element={<Messages />} />
           <Route path="/search"      element={<Search />} />
           <Route path="/genre/:id"   element={<Genre />} />
           <Route path="/movies"      element={<Movies />} />

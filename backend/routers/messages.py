@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import or_, and_
@@ -21,6 +23,7 @@ def message_card(msg: Message):
         "to_user_id": msg.to_user_id,
         "text": msg.text,
         "created_at": msg.created_at.isoformat() if msg.created_at else None,
+        "read_at": msg.read_at.isoformat() if msg.read_at else None,
     }
 
 
@@ -46,14 +49,26 @@ def list_messages(
         db.query(Message)
         .filter(
             or_(
-                and_(Message.from_user_id == current_user.id, Message.to_user_id == friend_id),
-                and_(Message.from_user_id == friend_id, Message.to_user_id == current_user.id),
+                and_(
+                    Message.from_user_id == current_user.id,
+                    Message.to_user_id == friend_id,
+                ),
+                and_(
+                    Message.from_user_id == friend_id,
+                    Message.to_user_id == current_user.id,
+                ),
             )
         )
         .order_by(Message.created_at.asc())
         .limit(100)
         .all()
     )
+
+    for msg in messages:
+        if msg.to_user_id == current_user.id and msg.read_at is None:
+            msg.read_at = datetime.now(timezone.utc)
+
+    db.commit()
 
     return [message_card(m) for m in messages]
 

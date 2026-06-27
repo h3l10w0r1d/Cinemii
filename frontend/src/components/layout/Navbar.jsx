@@ -175,6 +175,9 @@ export function Navbar() {
                   <button onClick={() => navigate('/settings')} className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition flex items-center gap-2.5 border-t border-white/5">
                     <Settings size={14} className="text-muted" /> Settings
                   </button>
+                  <button onClick={() => navigate('/messages')} className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition flex items-center gap-2.5 border-t border-white/5">
+                    <MessageCircle size={14} className="text-muted" /> Chats
+                  </button>
                   {user?.is_admin && (
                     <button onClick={() => navigate('/admin')} className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition flex items-center gap-2.5 border-t border-white/5">
                       <ShieldCheck size={14} className="text-accent" /> Licensing CMS

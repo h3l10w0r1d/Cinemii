@@ -115,8 +115,8 @@ export const api = {
   deleteReview: (type, id) => request('DELETE', `/api/reviews/${type}/${id}`, { auth: true }),
 
   // Messages
-  listMessages: (friendId) => request('GET', `/api/messages/${friendId}`, { auth: true }),
-  sendMessage:  (friendId, text) => request('POST', `/api/messages/${friendId}`, { body: { text }, auth: true }),
+listMessages: (friendId) => request('GET', `/api/messages/${friendId}`, { auth: true }),
+sendMessage:  (friendId, text) => request('POST', `/api/messages/${friendId}`, { body: { text }, auth: true }),
 
   listRooms:      ()                      => request('GET',  '/api/rooms'),
 };

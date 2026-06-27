@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 
+from datetime import datetime, timezone, timedelta
 from database import get_db
 from deps import get_current_user
 from models import User, FriendRequest, Friendship
@@ -10,6 +11,14 @@ router = APIRouter(prefix="/api/friends", tags=["friends"])
 
 
 def user_card(user: User):
+    now = datetime.now(timezone.utc)
+    last_seen = user.last_seen
+
+    if last_seen and last_seen.tzinfo is None:
+        last_seen = last_seen.replace(tzinfo=timezone.utc)
+
+    online = bool(last_seen and now - last_seen < timedelta(seconds=60))
+
     return {
         "id": user.id,
         "name": user.name,
@@ -17,7 +26,8 @@ def user_card(user: User):
         "email": user.email,
         "picture": user.picture,
         "bio": user.bio,
-        "online": False,
+        "online": online,
+        "last_seen": user.last_seen.isoformat() if user.last_seen else None,
     }
 
 
@@ -214,4 +224,12 @@ def reject_request(
     req.status = "rejected"
     db.commit()
 
+    return {"ok": True}
+@router.post("/heartbeat")
+def heartbeat(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    current_user.last_seen = datetime.now(timezone.utc)
+    db.commit()
     return {"ok": True}

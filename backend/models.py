@@ -45,6 +45,7 @@ class User(Base):
     # Grants access to the licensing CMS (admin-only endpoints).
     is_admin = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=_utcnow)
+    last_seen = Column(DateTime, nullable=True)
 
     progress = relationship(
         "WatchProgress", back_populates="user", cascade="all, delete-orphan"
@@ -238,8 +239,8 @@ class Message(Base):
     )
 
     text = Column(String(1000), nullable=False)
-
     created_at = Column(DateTime, default=_utcnow)
+    read_at = Column(DateTime, nullable=True)
 
     from_user = relationship("User", foreign_keys=[from_user_id])
     to_user = relationship("User", foreign_keys=[to_user_id])

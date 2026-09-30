@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { GENRES, fetchByGenrePaged } from '../core/tmdb';
 import { MovieCard } from '../components/movie/MovieCard';
-import { CinemaPlayer } from '../components/player/CinemaPlayer';
+import { useWatch } from '../hooks/useWatch';
 import { MovieCardSkeleton } from '../components/ui/Skeleton';
 
 const discover = (genreId, page) => fetchByGenrePaged(genreId, page);
@@ -13,7 +13,6 @@ export function Genre() {
   const [page, setPage]       = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLM]  = useState(false);
-  const [player, setPlayer]   = useState(null);
   const genre                 = GENRES.find(g => String(g.id) === String(id));
 
   // Reset when genre changes
@@ -40,7 +39,7 @@ export function Genre() {
       .finally(() => setLM(false));
   }, [id, page]);
 
-  const handleWatch = (movie) => setPlayer({ mediaType: 'movie', mediaId: String(movie.id), title: movie.title || '' });
+  const handleWatch = useWatch();
 
   return (
     <div className="min-h-screen bg-bg pt-24 pb-20">
@@ -70,7 +69,6 @@ export function Genre() {
         )}
       </div>
 
-      {player && <CinemaPlayer {...player} onClose={() => setPlayer(null)} />}
     </div>
   );
 }

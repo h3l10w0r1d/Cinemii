@@ -103,7 +103,7 @@ export function SeasonPicker({ tvId, seasons, onPlay }) {
             return (
               <div key={ep.id} className={`flex gap-4 glass rounded-xl p-3 transition group ${isWatched ? 'opacity-60' : ''}`}>
                 {/* Thumbnail → play */}
-                <button onClick={onPlay} className="relative w-36 h-20 rounded-lg overflow-hidden bg-surface flex-shrink-0">
+                <button onClick={() => onPlay?.(selected, ep.episode_number)} className="relative w-36 h-20 rounded-lg overflow-hidden bg-surface flex-shrink-0">
                   {ep.still_path
                     ? <img src={imgUrl(ep.still_path, 'w300')} alt={ep.name} className="w-full h-full object-cover" />
                     : <div className="w-full h-full flex items-center justify-center text-muted text-xs">No preview</div>

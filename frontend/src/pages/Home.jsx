@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Sparkles, Clapperboard, Star, Award, Tv, Swords, Laugh, Rocket,
@@ -12,7 +12,7 @@ import { ContinueWatching } from '../components/home/ContinueWatching';
 import { BecauseYouWatched } from '../components/home/BecauseYouWatched';
 import { GenreRow } from '../components/home/GenreRow';
 import { TastePicker } from '../components/home/TastePicker';
-import { CinemaPlayer } from '../components/player/CinemaPlayer';
+import { useWatch } from '../hooks/useWatch';
 import { getTaste, hasChosenTaste, genreName } from '../core/taste';
 import { useTMDB } from '../hooks/useTMDB';
 import { useLazyTMDB } from '../hooks/useLazyTMDB';
@@ -37,7 +37,6 @@ const fetchRomance  = () => fetchByGenre(10749);
 const slice = (data, n = 14) => (data?.results || []).slice(0, n);
 
 export function Home() {
-  const [player, setPlayer] = useState(null);
   const navigate            = useNavigate();
   const { loggedIn }        = useAuth();
   const { movies: recs, loading: recsLoading } = usePersonalizedRecs();
@@ -64,9 +63,7 @@ export function Home() {
   const anim       = useLazyTMDB(fetchAnim);
   const romance    = useLazyTMDB(fetchRomance);
 
-  const handleWatch = useCallback((movie, type) => {
-    setPlayer({ mediaType: type || 'movie', mediaId: String(movie.id), title: movie.title || movie.name || '' });
-  }, []);
+  const handleWatch = useWatch();
 
   const genre = (id) => () => navigate(`/genre/${id}`);
   const toMovies = () => navigate('/movies');
@@ -114,15 +111,6 @@ export function Home() {
         <MovieSection title="Animation"   icon={Film}   movies={slice(anim.data)}     loading={anim.loading}     onWatchClick={handleWatch} sectionRef={anim.ref}     onSeeAll={genre(16)} />
         <MovieSection title="Romance"     icon={Heart}  movies={slice(romance.data)}  loading={romance.loading}  onWatchClick={handleWatch} sectionRef={romance.ref}  onSeeAll={genre(10749)} />
       </div>
-
-      {player && (
-        <CinemaPlayer
-          mediaType={player.mediaType}
-          mediaId={player.mediaId}
-          title={player.title}
-          onClose={() => setPlayer(null)}
-        />
-      )}
 
       {showTaste && (
         <TastePicker onDone={(ids) => { setTasteState(ids); setShowTaste(false); }} />

@@ -7,10 +7,10 @@ import { useToast } from '../contexts/ToastContext';
 import { useSeo } from '../core/seo';
 import { api, isLoggedIn } from '../core/backend';
 import { MovieSection } from '../components/home/MovieSection';
-import { CinemaPlayer } from '../components/player/CinemaPlayer';
 import { TrailerModal } from '../components/player/TrailerModal';
 import { SeasonPicker } from '../components/movie/SeasonPicker';
 import { RatingReview } from '../components/movie/RatingReview';
+import { MediaEmbed } from '../components/movie/MediaEmbed';
 import { Skeleton } from '../components/ui/Skeleton';
 
 function Badge({ children, className = '' }) {
@@ -32,17 +32,25 @@ export function Movie() {
 
   const [movie,    setMovie]    = useState(null);
   const [loading,  setLoading]  = useState(true);
-  const [player,   setPlayer]   = useState(false);
   const [trailer,  setTrailer]  = useState(null);
   const [inWatchlist, setInWL]  = useState(false);
+  const [episode,  setEpisode]  = useState(null); // TV: { season, episode }
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!loc.hash) window.scrollTo(0, 0);
     setLoading(true);
     setMovie(null);
+    setEpisode(null);
     const fetcher = isTV ? fetchTV : fetchMovie;
     fetcher(id).then(setMovie).catch(console.error).finally(() => setLoading(false));
   }, [id, isTV]);
+
+  // Deep link (/movie/:id#watch) — jump to the embedded player once rendered.
+  useEffect(() => {
+    if (!loading && movie && loc.hash === '#watch') {
+      document.getElementById('watch')?.scrollIntoView();
+    }
+  }, [loading, movie, loc.hash]);
 
   // Initial watchlist membership
   useEffect(() => {
@@ -120,6 +128,9 @@ export function Movie() {
   const videos      = (movie.videos?.results || []).filter(v => v.site === 'YouTube' && v.key);
   const trailerKey  = (videos.find(v => v.type === 'Trailer') || videos[0])?.key;
   const seasons     = (movie.seasons || []).filter(s => s.season_number > 0);
+  const currentEp   = episode || { season: seasons[0]?.season_number ?? 1, episode: 1 };
+  const scrollToPlayer = () => document.getElementById('watch')?.scrollIntoView({ behavior: 'smooth' });
+  const playEpisode = (season, ep) => { setEpisode({ season, episode: ep }); scrollToPlayer(); };
 
   return (
     <div className="min-h-screen bg-bg">
@@ -181,7 +192,7 @@ export function Movie() {
 
             <div className="flex flex-wrap gap-3 mt-1">
               <button
-                onClick={() => setPlayer(true)}
+                onClick={scrollToPlayer}
                 className="gradient-accent text-white font-bold px-7 py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-accent/30 flex items-center gap-2"
               >
                 <Play size={17} fill="white" /> Watch Now
@@ -212,13 +223,22 @@ export function Movie() {
           </div>
         </div>
 
+        {/* Embedded player (by TMDB id; TV also by season/episode) */}
+        <MediaEmbed
+          mediaType={mediaType}
+          tmdbId={id}
+          season={currentEp.season}
+          episode={currentEp.episode}
+          title={title}
+        />
+
         {/* Rating & review */}
         <RatingReview mediaType={mediaType} mediaId={id} title={movie.title || movie.name} posterPath={movie.poster_path} />
 
         {/* TV seasons / episodes */}
         {isTV && seasons.length > 0 && (
           <div className="mt-14">
-            <SeasonPicker tvId={id} seasons={seasons} onPlay={() => setPlayer(true)} />
+            <SeasonPicker tvId={id} seasons={seasons} onPlay={playEpisode} />
           </div>
         )}
 
@@ -286,7 +306,6 @@ export function Movie() {
         )}
       </div>
 
-      {player  && <CinemaPlayer mediaType={mediaType} mediaId={String(id)} title={title} onClose={() => setPlayer(false)} />}
       {trailer && <TrailerModal youtubeKey={trailer} onClose={() => setTrailer(null)} />}
     </div>
   );

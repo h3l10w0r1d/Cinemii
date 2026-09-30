@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { Star, Award, Clapperboard, Swords, Laugh, Rocket, Eye, Ghost, Tv } from 'lucide-react';
 import { MovieSection } from '../components/home/MovieSection';
-import { CinemaPlayer } from '../components/player/CinemaPlayer';
+import { useWatch } from '../hooks/useWatch';
 import { useTMDB } from '../hooks/useTMDB';
 import {
   fetchPopular, fetchTopRated, fetchNowPlaying,
@@ -9,7 +8,7 @@ import {
   discoverMovies,
 } from '../core/tmdb';
 
-function WatchPage({ title, subtitle, children, player, onClose }) {
+function WatchPage({ title, subtitle, children }) {
   return (
     <div className="min-h-screen bg-bg pt-24 pb-20">
       <div className="max-w-screen-2xl mx-auto px-6 md:px-10 flex flex-col gap-14">
@@ -19,13 +18,11 @@ function WatchPage({ title, subtitle, children, player, onClose }) {
         </div>
         {children}
       </div>
-      {player && <CinemaPlayer {...player} onClose={onClose} />}
     </div>
   );
 }
 
 export function Movies() {
-  const [player, setPlayer] = useState(null);
   const popular   = useTMDB(fetchPopular);
   const topRated  = useTMDB(fetchTopRated);
   const now       = useTMDB(fetchNowPlaying);
@@ -35,11 +32,10 @@ export function Movies() {
   const thriller  = useTMDB(() => fetchByGenre(53),  []);
   const horror    = useTMDB(() => fetchByGenre(27),  []);
 
-  const handleWatch = (movie, type) =>
-    setPlayer({ mediaType: type || 'movie', mediaId: String(movie.id), title: movie.title || movie.name || '' });
+  const handleWatch = useWatch();
 
   return (
-    <WatchPage title="Movies" subtitle="Browse the full catalog" player={player} onClose={() => setPlayer(null)}>
+    <WatchPage title="Movies" subtitle="Browse the full catalog">
       <MovieSection title="Popular"    icon={Star}        movies={popular.data?.results  || []} loading={popular.loading}  onWatchClick={handleWatch} />
       <MovieSection title="Top Rated"  icon={Award}       movies={topRated.data?.results || []} loading={topRated.loading} onWatchClick={handleWatch} />
       <MovieSection title="Now Playing" icon={Clapperboard} movies={now.data?.results    || []} loading={now.loading}      onWatchClick={handleWatch} />
@@ -53,8 +49,6 @@ export function Movies() {
 }
 
 export function TVShows() {
-  const [player, setPlayer] = useState(null);
-
   const popular  = useTMDB(fetchPopularTV);
   const topRated = useTMDB(fetchTopRatedTV);
   const action   = useTMDB(() => fetchTVByGenre(10759), []);
@@ -64,11 +58,10 @@ export function TVShows() {
   const crime    = useTMDB(() => fetchTVByGenre(80), []);
   const mystery  = useTMDB(() => fetchTVByGenre(9648), []);
 
-  const handleWatch = (movie) =>
-    setPlayer({ mediaType: 'tv', mediaId: String(movie.id), title: movie.name || '' });
+  const handleWatch = useWatch();
 
   return (
-    <WatchPage title="TV Shows" subtitle="Binge-worthy series" player={player} onClose={() => setPlayer(null)}>
+    <WatchPage title="TV Shows" subtitle="Binge-worthy series">
       <MovieSection title="Popular" icon={Tv} movies={popular.data?.results || []} loading={popular.loading} mediaType="tv" onWatchClick={handleWatch} />
       <MovieSection title="Top Rated" icon={Award} movies={topRated.data?.results || []} loading={topRated.loading} mediaType="tv" onWatchClick={handleWatch} />
       <MovieSection title="Action & Adventure" icon={Swords} movies={action.data?.results || []} loading={action.loading} mediaType="tv" onWatchClick={handleWatch} />
@@ -82,8 +75,6 @@ export function TVShows() {
 }
 
 export function TopRated() {
-  const [player, setPlayer] = useState(null);
-
   const all      = useTMDB(fetchTopRated);
   const action   = useTMDB(() => discoverMovies({ with_genres: 28,  sort_by: 'vote_average.desc', 'vote_count.gte': 500 }), []);
   const comedy   = useTMDB(() => discoverMovies({ with_genres: 35,  sort_by: 'vote_average.desc', 'vote_count.gte': 500 }), []);
@@ -93,15 +84,10 @@ export function TopRated() {
   const horror   = useTMDB(() => discoverMovies({ with_genres: 27,  sort_by: 'vote_average.desc', 'vote_count.gte': 300 }), []);
   const thriller = useTMDB(() => discoverMovies({ with_genres: 53,  sort_by: 'vote_average.desc', 'vote_count.gte': 500 }), []);
 
-  const handleWatch = (movie, type) =>
-    setPlayer({
-      mediaType: type || 'movie',
-      mediaId: String(movie.id),
-      title: movie.title || movie.name || '',
-    });
+  const handleWatch = useWatch();
 
   return (
-    <WatchPage title="Top Rated" subtitle="The highest-rated films by category" player={player} onClose={() => setPlayer(null)}>
+    <WatchPage title="Top Rated" subtitle="The highest-rated films by category">
       <MovieSection title="Top Rated All Time" icon={Award} movies={all.data?.results || []} loading={all.loading} onWatchClick={handleWatch} />
       <MovieSection title="Top Rated Action" icon={Swords} movies={action.data?.results || []} loading={action.loading} onWatchClick={handleWatch} />
       <MovieSection title="Top Rated Comedy" icon={Laugh} movies={comedy.data?.results || []} loading={comedy.loading} onWatchClick={handleWatch} />

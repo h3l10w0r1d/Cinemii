@@ -3,7 +3,7 @@ import { X, Sparkles } from 'lucide-react';
 import { discoverMovies } from '../../core/tmdb';
 import { MovieCard } from '../movie/MovieCard';
 import { MovieCardSkeleton } from '../ui/Skeleton';
-import { CinemaPlayer } from '../player/CinemaPlayer';
+import { useWatch } from '../../hooks/useWatch';
 
 // Each mood maps to a TMDB discover query — a curated "AI" pick.
 // Genres are OR-joined ('|') so every mood returns a rich result set.
@@ -33,7 +33,6 @@ export function MoodRecommender({ onClose }) {
   const [mood, setMood]       = useState(null);
   const [movies, setMovies]   = useState([]);
   const [loading, setLoading] = useState(false);
-  const [player, setPlayer]   = useState(null);
 
   useEffect(() => {
     const h = (e) => { if (e.key === 'Escape') onClose(); };
@@ -60,8 +59,8 @@ export function MoodRecommender({ onClose }) {
     setLoading(false);
   };
 
-  const handleWatch = (movie, type) =>
-    setPlayer({ mediaType: type || 'movie', mediaId: String(movie.id), title: movie.title || movie.name || '' });
+  const watch = useWatch();
+  const handleWatch = (movie, type) => { onClose(); watch(movie, type); };
 
   return (
     <div className="fixed inset-0 z-[9996] bg-black/85 backdrop-blur-md overflow-y-auto animate-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -117,7 +116,6 @@ export function MoodRecommender({ onClose }) {
         )}
       </div>
 
-      {player && <CinemaPlayer {...player} onClose={() => setPlayer(null)} />}
     </div>
   );
 }

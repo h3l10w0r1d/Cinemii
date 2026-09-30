@@ -18,7 +18,7 @@ export const TMDB_BASE =
 //   movie: https://api.cinemii.com/embed/movie/597?apikey=...
 //   tv:    https://api.cinemii.com/embed/tv/1399/1/1?apikey=...  (id/season/episode)
 export const EMBED_BASE =
-  import.meta.env.VITE_EMBED_BASE ?? 'https://api.cinemii.com/embed';
+  import.meta.env.VITE_EMBED_BASE ?? 'https://api.codespecters.com/embed';
 // Set VITE_EMBED_API_KEY in the environment (e.g. frontend/.env or Vercel).
 export const EMBED_API_KEY = import.meta.env.VITE_EMBED_API_KEY ?? '';
 

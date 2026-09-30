@@ -8,9 +8,11 @@ export const API_BASE =
   import.meta.env.VITE_API_BASE ?? (import.meta.env.PROD ? '' : DEV_API); 
 
 // TMDB always goes through a proxy so the key stays server-side.
-// Dev: the FastAPI proxy. Prod: the Vercel serverless function at /api/tmdb.
+// Dev: the FastAPI proxy. Prod: the Vercel serverless function at /api/tmdb
+// (same origin — independent of where VITE_API_BASE points).
 export const TMDB_BASE =
-  import.meta.env.VITE_TMDB_BASE ?? `${API_BASE}/api/tmdb`;
+  import.meta.env.VITE_TMDB_BASE ??
+  (import.meta.env.PROD ? '/api/tmdb' : `${API_BASE}/api/tmdb`);
 
 // Cinemii embed player (iframe), keyed by TMDB id.
 //   movie: https://api.cinemii.com/embed/movie/597?apikey=...
